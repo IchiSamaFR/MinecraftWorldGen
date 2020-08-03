@@ -84,9 +84,16 @@ public class Chunk : MonoBehaviour
                         cube.transform.position = this.transform.position + new Vector3(tile.x, h, tile.z);
                         chunkBlocks.Add(cube);
                         blocks[(int)tile.x, (int)h, (int)tile.z] = cube;
+                        cube.GetComponent<Block>().pos = new Vector3(tile.x, h, tile.z);
+                        cube.GetComponent<Block>().chunk = this;
                     }
                 }
                 h++;
+            }
+
+            foreach(GameObject bl in chunkBlocks)
+            {
+                bl.GetComponent<Block>().BuildMesh();
             }
         }
     }
@@ -147,7 +154,15 @@ public class Chunk : MonoBehaviour
                 chunkBlocks.Add(cube);
 
                 blocks[(int)tile.x, (int)tile.y, (int)tile.z] = cube;
+                    
+                cube.GetComponent<Block>().pos = new Vector3(tile.x, tile.y, tile.z);
+                cube.GetComponent<Block>().chunk = this;
             }
+        }
+
+        foreach(GameObject bl in chunkBlocks)
+        {
+            bl.GetComponent<Block>().BuildMesh();
         }
     }
 
