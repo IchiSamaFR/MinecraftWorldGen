@@ -119,81 +119,18 @@ public class Block : MonoBehaviour
             new Vector3(0, 1, 1) - trans,
         };
 
-        List<int> triangles = new List<int>();
-        
-        //Right
-        if (!chunk.GetAt((int)pos.x - 1, (int)pos.y, (int)pos.z))
-        {
-            triangles.Add(3);
-            triangles.Add(4);
-            triangles.Add(0);
-            triangles.Add(3);
-            triangles.Add(7);
-            triangles.Add(4);
-        }
-        //Left
-        if (!chunk.GetAt((int)pos.x + 1, (int)pos.y, (int)pos.z))
-        {
-            triangles.Add(1);
-            triangles.Add(5);
-            triangles.Add(2);
-            triangles.Add(2);
-            triangles.Add(5);
-            triangles.Add(6);
-        }
-        //Forward
-        if (!chunk.GetAt((int)pos.x, (int)pos.y, (int)pos.z - 1))
-        {
-            triangles.Add(0);
-            triangles.Add(5);
-            triangles.Add(1);
-            triangles.Add(0);
-            triangles.Add(4);
-            triangles.Add(5);
-        }
-        //Back
-        if (!chunk.GetAt((int)pos.x, (int)pos.y, (int)pos.z + 1))
-        {
-            triangles.Add(2);
-            triangles.Add(7);
-            triangles.Add(3);
-            triangles.Add(2);
-            triangles.Add(6);
-            triangles.Add(7);
-        }
-        //Up
-        if (!chunk.GetAt((int)pos.x, (int)pos.y + 1, (int)pos.z))
-        {
-            triangles.Add(4);
-            triangles.Add(6);
-            triangles.Add(5);
-            triangles.Add(4);
-            triangles.Add(7);
-            triangles.Add(6);
-        }
-        //Down
-        if (!chunk.GetAt((int)pos.x, (int)pos.y - 1, (int)pos.z))
-        {
-            triangles.Add(0);
-            triangles.Add(1);
-            triangles.Add(2);
-            triangles.Add(0);
-            triangles.Add(2);
-            triangles.Add(3);
-        }
 
-
-        int[] test = new int[]{0,5,1,0,4,5,
-                                   1,5,2,2,5,6,
-                                   2,7,3,2,6,7,
-                                   3,4,0,3,7,4,
-                                   4,6,5,4,7,6,
-                                   0,1,2,0,2,3};
+        int[] toBuild = new int[]{ 0,5,1,0,4,5,
+                                1,5,2,2,5,6,
+                                2,7,3,2,6,7,
+                                3,4,0,3,7,4,
+                                4,6,5,4,7,6,
+                                0,1,2,0,2,3};
 
         Mesh mesh = GetComponent<MeshFilter>().mesh;
         mesh.Clear();
         mesh.vertices = vertices;
-        mesh.triangles = triangles.ToArray();
+        mesh.triangles = toBuild;
         mesh.Optimize();
         mesh.RecalculateNormals();
 
