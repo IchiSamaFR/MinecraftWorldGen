@@ -92,12 +92,9 @@ public class MapGenerator : MonoBehaviour
                     newChunk.transform.position = new Vector3((x - viewDistance + playerPos.x + xCorrector) * width, 0, (z - viewDistance + playerPos.z + zCorrector) * length);
                     chunks[x, z] = newChunk;
                     newChunk.GetComponent<Chunk>().Set(width, length, height, scale, (x - viewDistance + (int)playerPos.x + xCorrector), (z - viewDistance + (int)playerPos.z + zCorrector), seed);
-                    if(Speed){
-                        newChunk.GetComponent<Chunk>().SpeedMapGen();
-                    } else {
-                        newChunk.GetComponent<Chunk>().MapGen();
-                    }
-                    
+
+                    newChunk.GetComponent<Chunk>().MapGen();
+
                     mapChunks.Add(newChunk.GetComponent<Chunk>());
                 } else
                 {

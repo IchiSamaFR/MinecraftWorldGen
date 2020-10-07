@@ -48,11 +48,9 @@ public class Chunk : MonoBehaviour
 
     public bool GetAt(int x, int y, int z)
     {
-        if(x < 0 || y < 0 || z < 0 ||
-           x >= width || y >= height || z >= length)
-        {
-            return true;
-        } else if(blocks[x, y, z])
+        if(x >= 0 && y >= 0 && z >= 0 &&
+           x < width && y < height && z < length
+           && blocks[x, y, z])
         {
             return true;
         }
@@ -62,41 +60,83 @@ public class Chunk : MonoBehaviour
 
     public void MapGen()
     {
-        if (timelapse)
-        {
-            StartCoroutine("IE_MapGen");
-        }
-        else
-        {
-            List<Vector3> mapBlocks = new List<Vector3>();
+        List<Vector3> mapBlocks = new List<Vector3>();
 
-            mapBlocks = NoiseMap.Create(width, length, height, scale, xPos, zPos, seed);
+        mapBlocks = NoiseMap.Create(width, length, height, scale, xPos, zPos, seed);
 
-            int h = 0;
-            while (h < height)
+        /*  Geneartion de la map
+         *  Incrémentation de 1 a chaque fois que ca monte
+         *  Si le pixel est moins haut que la hauteur alors ajouter un block
+         */
+        int h = 0;
+        while (h < height)
+        {
+            foreach (Vector3 tile in mapBlocks)
             {
-                foreach (Vector3 tile in mapBlocks)
+                if (tile.y >= h)
                 {
-                    if (tile.y >= h)
-                    {
+                    GameObject cube = Instantiate(grassTilePrefab, this.transform);
+                    cube.transform.position = this.transform.position + new Vector3(tile.x, h, tile.z);
+                    chunkBlocks.Add(cube);
+                    blocks[(int)tile.x, (int)h, (int)tile.z] = cube;
+                    cube.GetComponent<Block>().pos = new Vector3(tile.x, h, tile.z);
+                    cube.GetComponent<Block>().chunk = this;
+                }
+            }
+            h++;
+        }
 
-                        GameObject cube = Instantiate(grassTilePrefab, this.transform);
-                        cube.transform.position = this.transform.position + new Vector3(tile.x, h, tile.z);
-                        chunkBlocks.Add(cube);
-                        blocks[(int)tile.x, (int)h, (int)tile.z] = cube;
-                        cube.GetComponent<Block>().pos = new Vector3(tile.x, h, tile.z);
-                        cube.GetComponent<Block>().chunk = this;
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < length; z++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    GameObject _block;
+                    if ((_block = blocks[x, y, z]))
+                    {
+                        bool _left = false;
+                        bool _right = false;
+
+                        bool _forward = false;
+                        bool _back = false;
+
+                        bool _up = false;
+                        bool _down = false;
+
+                        if (!GetAt(x - 1, y, z))
+                        {
+                            _left = true;
+                        }
+                        if (!GetAt(x + 1, y, z))
+                        {
+                            _right = true;
+                        }
+                        if (!GetAt(x, y, z + 1))
+                        {
+                            _back = true;
+                        }
+                        if (!GetAt(x, y, z - 1))
+                        {
+                            _forward = true;
+                        }
+                        if (!GetAt(x, y + 1, z))
+                        {
+                            _up = true;
+                        }
+                        if (!GetAt(x, y - 1, z))
+                        {
+                            _down = true;
+                        }
+
+                        _block.GetComponent<Block>().BuildMesh(_left, _right, _forward, _back, _up, _down);
                     }
                 }
-                h++;
-            }
-
-            foreach(GameObject bl in chunkBlocks)
-            {
-                bl.GetComponent<Block>().BuildMesh();
             }
         }
     }
+
+    /*
     IEnumerator IE_MapGen()
     {
         WaitForSeconds wait = new WaitForSeconds(timeBetweenBlocks);
@@ -134,7 +174,6 @@ public class Chunk : MonoBehaviour
             yield return wait;
         }
     }
-
     public void SpeedMapGen()
     {
         if (timelapse)
@@ -199,4 +238,5 @@ public class Chunk : MonoBehaviour
         }
 
     }
+    */
 }
