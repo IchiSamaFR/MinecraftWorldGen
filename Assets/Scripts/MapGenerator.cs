@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Threading;
 
 public class MapGenerator : MonoBehaviour
 {
@@ -26,7 +27,7 @@ public class MapGenerator : MonoBehaviour
 
     public GameObject player;
     Vector3 playerPos;
-
+    
     void Start()
     {
 

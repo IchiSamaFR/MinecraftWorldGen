@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class Chunk : MonoBehaviour
 {
@@ -26,10 +25,10 @@ public class Chunk : MonoBehaviour
     [Header("Others")]
     public bool timelapse = true;
     public float timeBetweenBlocks = 0.05f;
-
-    List<GameObject> chunkBlocks = new List<GameObject>();
+    
     public GameObject[,,] blocks = new GameObject[16, 21, 16];
-
+    public string[,,] blocksString = new string[16, 21, 16];
+    
     void Start()
     {
 
@@ -50,7 +49,7 @@ public class Chunk : MonoBehaviour
     {
         if(x >= 0 && y >= 0 && z >= 0 &&
            x < width && y < height && z < length
-           && blocks[x, y, z])
+           && blocksString[x, y, z] != "air")
         {
             return true;
         }
@@ -75,12 +74,11 @@ public class Chunk : MonoBehaviour
             {
                 if (tile.y >= h)
                 {
-                    GameObject cube = Instantiate(grassTilePrefab, this.transform);
-                    cube.transform.position = this.transform.position + new Vector3(tile.x, h, tile.z);
-                    chunkBlocks.Add(cube);
-                    blocks[(int)tile.x, (int)h, (int)tile.z] = cube;
-                    cube.GetComponent<Block>().pos = new Vector3(tile.x, h, tile.z);
-                    cube.GetComponent<Block>().chunk = this;
+                    blocksString[(int)tile.x, (int)h, (int)tile.z] = "block";
+                }
+                else
+                {
+                    blocksString[(int)tile.x, (int)h, (int)tile.z] = "air";
                 }
             }
             h++;
@@ -92,8 +90,7 @@ public class Chunk : MonoBehaviour
             {
                 for (int y = 0; y < height; y++)
                 {
-                    GameObject _block;
-                    if ((_block = blocks[x, y, z]))
+                    if (blocksString[x, y, z] != "air")
                     {
                         bool _left = false;
                         bool _right = false;
@@ -104,32 +101,43 @@ public class Chunk : MonoBehaviour
                         bool _up = false;
                         bool _down = false;
 
-                        if (!GetAt(x - 1, y, z))
+                        if (GetAt(x - 1, y, z))
                         {
                             _left = true;
                         }
-                        if (!GetAt(x + 1, y, z))
+                        if (GetAt(x + 1, y, z))
                         {
                             _right = true;
                         }
-                        if (!GetAt(x, y, z + 1))
+                        if (GetAt(x, y, z + 1))
                         {
                             _back = true;
                         }
-                        if (!GetAt(x, y, z - 1))
+                        if (GetAt(x, y, z - 1))
                         {
                             _forward = true;
                         }
-                        if (!GetAt(x, y + 1, z))
+                        if (GetAt(x, y + 1, z))
                         {
                             _up = true;
                         }
-                        if (!GetAt(x, y - 1, z))
+                        if (GetAt(x, y - 1, z))
                         {
                             _down = true;
                         }
 
-                        _block.GetComponent<Block>().BuildMesh(_left, _right, _forward, _back, _up, _down);
+                        Vector3 v = new Vector3(x, y, z);
+                        if (!(_down && _up && _forward && _back && _right && _left) && !blocks[(int)v.x, (int)v.y, (int)v.z])
+                        {
+                            GameObject cube = Instantiate(grassTilePrefab, this.transform);
+                            cube.transform.position = this.transform.position + v;
+                            blocks[(int)v.x, (int)v.y, (int)v.z] = cube;
+                            cube.GetComponent<Block>().pos = v;
+                            cube.GetComponent<Block>().chunk = this;
+
+                            cube.GetComponent<Block>().BuildMesh(_left, _right, _forward, _back, _up, _down);
+                        }
+
                     }
                 }
             }
