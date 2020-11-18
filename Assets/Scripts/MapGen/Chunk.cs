@@ -29,6 +29,9 @@ public class Chunk : MonoBehaviour
     
     public GameObject[,,] blocks = new GameObject[16, 21, 16];
     public string[,,] blocksString = new string[16, 21, 16];
+
+    bool arrayGenerated = false;
+    bool blockGenerated = false;
     
     void Start()
     {
@@ -37,9 +40,10 @@ public class Chunk : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown("e"))
+        if (arrayGenerated && !blockGenerated)
         {
-            BreakBlock(10, 10, 7);
+            MapGen();
+            blockGenerated = true;
         }
     }
 
@@ -66,7 +70,7 @@ public class Chunk : MonoBehaviour
         return false;
     }
 
-    public void MapGen()
+    public void ArrayGen()
     {
         List<Vector3> mapBlocks = new List<Vector3>();
 
@@ -93,6 +97,11 @@ public class Chunk : MonoBehaviour
             h++;
         }
 
+        arrayGenerated = true;
+    }
+
+    public void MapGen()
+    {
         for (int x = 0; x < width; x++)
         {
             for (int z = 0; z < length; z++)
@@ -155,17 +164,27 @@ public class Chunk : MonoBehaviour
             b.pos = vec;
             b.chunk = this;
 
-            System.Action _action = () => b.BuildMesh(_left, _right, _forward, _back, _up, _down);
-            thread.AddToThread(_action);
-            
+            b.BuildMesh(_left, _right, _forward, _back, _up, _down);
+        }
+        else if (!(_down && _up && _forward && _back && _right && _left) && blocks[(int)vec.x, (int)vec.y, (int)vec.z])
+        {
+            Block b = blocks[(int)vec.x, (int)vec.y, (int)vec.z].GetComponent<Block>();
+
+            b.BuildMesh(_left, _right, _forward, _back, _up, _down);
+        }
+        else if(blocks[(int)vec.x, (int)vec.y, (int)vec.z])
+        {
+            Destroy(blocks[(int)vec.x, (int)vec.y, (int)vec.z]);
         }
     }
 
     public void BreakBlock(int x, int y, int z)
     {
+        Destroy(blocks[x, y, z]);
         blocksString[x, y, z] = "air";
         blocks[x, y, z] = null;
 
+        RefreshBlock(x, y, z);
         RefreshBlock(x - 1, y, z);
         RefreshBlock(x + 1, y, z);
         RefreshBlock(x, y, z + 1);
@@ -173,7 +192,27 @@ public class Chunk : MonoBehaviour
         RefreshBlock(x, y + 1, z);
         RefreshBlock(x, y - 1, z);
     }
+    public void BreakBlock(Block _block)
+    {
+        BreakBlock((int)_block.pos.x, (int)_block.pos.y, (int)_block.pos.z);
+    }
+    public void PlaceBlock(int x, int y, int z)
+    {
+        blocksString[x, y, z] = "block";
+        blocks[x, y, z] = null;
 
+        RefreshBlock(x, y, z);
+        RefreshBlock(x - 1, y, z);
+        RefreshBlock(x + 1, y, z);
+        RefreshBlock(x, y, z + 1);
+        RefreshBlock(x, y, z - 1);
+        RefreshBlock(x, y + 1, z);
+        RefreshBlock(x, y - 1, z);
+    }
+    public void PlaceBlock(Vector3 _pos)
+    {
+        PlaceBlock((int)_pos.x, (int)_pos.y, (int)_pos.z);
+    }
 
 
     /*

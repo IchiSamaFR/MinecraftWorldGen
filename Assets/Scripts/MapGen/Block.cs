@@ -54,6 +54,7 @@ public class Block : MonoBehaviour
 
     public void BuildMesh(bool left, bool right, bool forward, bool backward, bool up, bool down)
     {
+        isBuilded = false;
         if (!left)
         {
             triangles.Add(3);
@@ -143,4 +144,8 @@ public class Block : MonoBehaviour
 
     }
 
+    public void Break()
+    {
+        chunk.BreakBlock(this);
+    }
 }
