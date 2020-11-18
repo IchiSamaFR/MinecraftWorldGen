@@ -35,14 +35,6 @@ public class MapGenerator : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown("x"))
-        {
-            ChunkCreator();
-        }
-        if (Input.GetKeyDown("r"))
-        {
-            seed = Random.Range(0, 100000);
-        }
         CheckPlayerPos();
     }
 
@@ -60,7 +52,7 @@ public class MapGenerator : MonoBehaviour
             playerZ -= 1;
         }
 
-        if (playerPos.x != playerX || playerPos.z != playerZ)
+        if (playerPos.x != playerX || playerPos.x == 0 || playerPos.z != playerZ || playerPos.z == 0)
         {
             playerPos = new Vector3(playerX, 0, playerZ);
             ChunkCreator();
@@ -70,36 +62,23 @@ public class MapGenerator : MonoBehaviour
     void ChunkCreator()
     {
         DeleteMap();
-
-        int xCorrector = 0;
-        int zCorrector = 0;
-        /*
-        if (player.transform.position.x < 0)
-        {
-            xCorrector -= 1;
-        }
-        if (player.transform.position.z < 0)
-        {
-            zCorrector -= 1;
-        }*/
-
+        
         for (int x = 0; x < viewDistance * 2 + 1; x++)
         {
             for (int z = 0; z < viewDistance * 2 + 1; z++)
             {
-                if(!(CheckChunkInList((int)(x - viewDistance + playerPos.x + xCorrector), (int)(z - viewDistance + playerPos.z + zCorrector)) >= 0))
+                if(!(CheckChunkInList((int)(x - viewDistance + playerPos.x), (int)(z - viewDistance + playerPos.z)) >= 0))
                 {
                     GameObject newChunk = Instantiate(chunkPrefab, this.transform);
-                    newChunk.transform.position = new Vector3((x - viewDistance + playerPos.x + xCorrector) * width, 0, (z - viewDistance + playerPos.z + zCorrector) * length);
+                    newChunk.transform.position = new Vector3((x - viewDistance + playerPos.x) * width, 0, (z - viewDistance + playerPos.z) * length);
                     chunks[x, z] = newChunk;
-                    newChunk.GetComponent<Chunk>().Set(width, length, height, scale, (x - viewDistance + (int)playerPos.x + xCorrector), (z - viewDistance + (int)playerPos.z + zCorrector), seed);
-
+                    newChunk.GetComponent<Chunk>().Set(width, length, height, scale, (x - viewDistance + (int)playerPos.x), (z - viewDistance + (int)playerPos.z), seed);
                     newChunk.GetComponent<Chunk>().MapGen();
 
                     mapChunks.Add(newChunk.GetComponent<Chunk>());
                 } else
                 {
-                    mapChunks[CheckChunkInList((int)(x - viewDistance + playerPos.x + xCorrector), (int)(z - viewDistance + playerPos.z + zCorrector))].gameObject.SetActive(true);
+                    mapChunks[CheckChunkInList((int)(x - viewDistance + playerPos.x), (int)(z - viewDistance + playerPos.z))].gameObject.SetActive(true);
                 }
             }
         }

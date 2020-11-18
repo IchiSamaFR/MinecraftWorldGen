@@ -14,18 +14,8 @@ public class ThreadBlocks : MonoBehaviour
     {
         instance = this;
         _init_();
-
     }
-     
-    private void Start()
-    {    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
+    
     void _init_()
     {
         thread = new Thread(SetMeshes);

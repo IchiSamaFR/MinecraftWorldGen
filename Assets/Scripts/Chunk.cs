@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading;
 
 public class Chunk : MonoBehaviour
 {
@@ -32,6 +33,14 @@ public class Chunk : MonoBehaviour
     void Start()
     {
 
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown("e"))
+        {
+            BreakBlock(10, 10, 7);
+        }
     }
 
     public void Set(int width, int length, int height, float scale, int xPos, int zPos, int seed)
@@ -90,59 +99,82 @@ public class Chunk : MonoBehaviour
             {
                 for (int y = 0; y < height; y++)
                 {
-                    if (blocksString[x, y, z] != "air")
+                    if(blocksString[x, y, z] == null)
                     {
-                        bool _left = false;
-                        bool _right = false;
-
-                        bool _forward = false;
-                        bool _back = false;
-
-                        bool _up = false;
-                        bool _down = false;
-
-                        if (GetAt(x - 1, y, z))
-                        {
-                            _left = true;
-                        }
-                        if (GetAt(x + 1, y, z))
-                        {
-                            _right = true;
-                        }
-                        if (GetAt(x, y, z + 1))
-                        {
-                            _back = true;
-                        }
-                        if (GetAt(x, y, z - 1))
-                        {
-                            _forward = true;
-                        }
-                        if (GetAt(x, y + 1, z))
-                        {
-                            _up = true;
-                        }
-                        if (GetAt(x, y - 1, z))
-                        {
-                            _down = true;
-                        }
-
-                        Vector3 v = new Vector3(x, y, z);
-                        if (!(_down && _up && _forward && _back && _right && _left) && !blocks[(int)v.x, (int)v.y, (int)v.z])
-                        {
-                            GameObject cube = Instantiate(grassTilePrefab, this.transform);
-                            cube.transform.position = this.transform.position + v;
-                            blocks[(int)v.x, (int)v.y, (int)v.z] = cube;
-                            cube.GetComponent<Block>().pos = v;
-                            cube.GetComponent<Block>().chunk = this;
-
-                            cube.GetComponent<Block>().BuildMesh(_left, _right, _forward, _back, _up, _down);
-                        }
-
+                        blocksString[x, y, z] = "air";
+                    }
+                    else if (blocksString[x, y, z] != "air")
+                    {
+                        RefreshBlock(x, y, z);
                     }
                 }
             }
         }
     }
+
+    ThreadBlocks thread = new ThreadBlocks(); 
+    public void RefreshBlock(int x, int y, int z)
+    {
+        if(!GetAt(x, y, z))
+        {
+            return;
+        }
+
+        bool _left = false;
+        bool _right = false;
+
+        bool _forward = false;
+        bool _back = false;
+
+        bool _up = false;
+        bool _down = false;
+
+        if (GetAt(x - 1, y, z))
+            _left = true;
+        if (GetAt(x + 1, y, z))
+            _right = true;
+
+        if (GetAt(x, y, z + 1))
+            _back = true;
+        if (GetAt(x, y, z - 1))
+            _forward = true;
+
+        if (GetAt(x, y + 1, z))
+            _up = true;
+        if (GetAt(x, y - 1, z))
+            _down = true;
+
+        Vector3 vec = new Vector3(x, y, z);
+        if (!(_down && _up && _forward && _back && _right && _left) && !blocks[(int)vec.x, (int)vec.y, (int)vec.z])
+        {
+            GameObject cube = Instantiate(grassTilePrefab, this.transform);
+            cube.transform.position = this.transform.position + vec;
+            blocks[(int)vec.x, (int)vec.y, (int)vec.z] = cube;
+
+            Block b = cube.GetComponent<Block>();
+            b.pos = vec;
+            b.chunk = this;
+
+            System.Action _action = () => b.BuildMesh(_left, _right, _forward, _back, _up, _down);
+            thread.AddToThread(_action);
+            
+        }
+    }
+
+    public void BreakBlock(int x, int y, int z)
+    {
+        blocksString[x, y, z] = "air";
+        blocks[x, y, z] = null;
+
+        RefreshBlock(x - 1, y, z);
+        RefreshBlock(x + 1, y, z);
+        RefreshBlock(x, y, z + 1);
+        RefreshBlock(x, y, z - 1);
+        RefreshBlock(x, y + 1, z);
+        RefreshBlock(x, y - 1, z);
+    }
+
+
 
     /*
     IEnumerator IE_MapGen()
