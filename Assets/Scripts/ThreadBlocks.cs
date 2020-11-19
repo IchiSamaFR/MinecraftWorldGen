@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
-public class ThreadBlocks : MonoBehaviour
+public class ThreadBlocks
 {
     public static ThreadBlocks instance;
-    List<Action> threadActions = new List<Action>();
+    List<Action> threadActions;
     Thread thread;
 
     private void Awake()
@@ -19,6 +19,7 @@ public class ThreadBlocks : MonoBehaviour
     void _init_()
     {
         thread = new Thread(SetMeshes);
+        threadActions = new List<Action>();
     }
 
     public void StartThread()
@@ -37,8 +38,8 @@ public class ThreadBlocks : MonoBehaviour
 
     public void AddToThread(Action _action)
     {
-        threadActions.Add(_action);
         StartThread();
+        threadActions.Add(_action);
     }
 
     public void SetMeshes()

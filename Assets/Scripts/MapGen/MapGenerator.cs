@@ -34,6 +34,7 @@ public class MapGenerator : MonoBehaviour
 
     [Header("Stats")]
     public bool preGen;
+    public int preGendChunks = 4;
     public float waitTimer = 0.2f;
 
     void Start()
@@ -81,27 +82,13 @@ public class MapGenerator : MonoBehaviour
 
     void _initmap_()
     {
-        int ToGen = 3;
-        for (int x = 0; x < ToGen * 2 + 1; x++)
+        for (int x = 0; x < preGendChunks * 2 + 1; x++)
         {
-            for (int z = 0; z < ToGen * 2 + 1; z++)
+            for (int z = 0; z < preGendChunks * 2 + 1; z++)
             {
-                if (!(CheckChunkInList((int)(x - ToGen + playerPos.x), (int)(z - ToGen + playerPos.z)) >= 0))
-                {
-                    GameObject newChunk = Instantiate(chunkPrefab, this.transform);
-                    newChunk.transform.position = new Vector3((x - ToGen + playerPos.x) * width, 0, (z - ToGen + playerPos.z) * length);
-                    chunks[x, z] = newChunk;
-                    Chunk _chunk = newChunk.GetComponent<Chunk>();
-                    _chunk.Set(this, width, length, height, scale, (x - viewDistance + (int)playerPos.x), (z - viewDistance + (int)playerPos.z), seed);
-
-                    _chunk.ArrayGen();
-
-                    mapChunks.Add(newChunk.GetComponent<Chunk>());
-                }
-                else
-                {
-                    mapChunks[CheckChunkInList((int)(x - ToGen + playerPos.x), (int)(z - ToGen + playerPos.z))].gameObject.SetActive(true);
-                }
+                int _xPos = (int)(x - preGendChunks + playerPos.x);
+                int _zPos = (int)(z - preGendChunks + playerPos.z);
+                CreateChunk(_xPos, _zPos);
             }
         }
     }
@@ -117,41 +104,46 @@ public class MapGenerator : MonoBehaviour
             {
                 int _xPos = (int)(x - viewDistance + playerPos.x);
                 int _zPos = (int)(z - viewDistance + playerPos.z);
-
-                if (!(CheckChunkInList((int)(x - viewDistance + playerPos.x), (int)(z - viewDistance + playerPos.z)) >= 0))
-                {
-                    GameObject newChunk = Instantiate(chunkPrefab, this.transform);
-
-                    newChunk.transform.position = new Vector3(_xPos * width, 0, _zPos * length);
-                    if(_xPos < 0 && _zPos < 0)
-                    {
-                        chunks[-_xPos, -_zPos] = newChunk;
-                    }
-                    else if(_xPos < 0)
-                    {
-                        chunks[-_xPos, _zPos] = newChunk;
-                    }
-                    else if (_zPos < 0)
-                    {
-                        chunks[_xPos, -_zPos] = newChunk;
-                    }
-                    else
-                    {
-                        chunks[_xPos, _zPos] = newChunk;
-                    }
-
-                    Chunk _chunk = newChunk.GetComponent<Chunk>();
-                    _chunk.Set(this, width, length, height, scale, _xPos, _zPos, seed);
-
-                    System.Action _action = () => _chunk.ArrayGen();
-                    thread.AddToThread(_action);
-
-                    mapChunks.Add(newChunk.GetComponent<Chunk>());
-                } else
-                {
-                    mapChunks[CheckChunkInList(_xPos, _zPos)].gameObject.SetActive(true);
-                }
+                CreateChunk(_xPos, _zPos);
             }
+        }
+    }
+
+    public void CreateChunk(int _xPos, int _zPos)
+    {
+        if (!(CheckChunkInList(_xPos, _zPos) >= 0))
+        {
+            GameObject newChunk = Instantiate(chunkPrefab, this.transform);
+
+            newChunk.transform.position = new Vector3(_xPos * width, 0, _zPos * length);
+            if (_xPos < 0 && _zPos < 0)
+            {
+                chunks[-_xPos, -_zPos] = newChunk;
+            }
+            else if (_xPos < 0)
+            {
+                chunks[-_xPos, _zPos] = newChunk;
+            }
+            else if (_zPos < 0)
+            {
+                chunks[_xPos, -_zPos] = newChunk;
+            }
+            else
+            {
+                chunks[_xPos, _zPos] = newChunk;
+            }
+
+            Chunk _chunk = newChunk.GetComponent<Chunk>();
+            _chunk.Set(this, width, length, height, scale, _xPos, _zPos, seed);
+
+            System.Action _action = () => _chunk.ArrayGen();
+            thread.AddToThread(_action);
+
+            mapChunks.Add(newChunk.GetComponent<Chunk>());
+        }
+        else
+        {
+            mapChunks[CheckChunkInList(_xPos, _zPos)].gameObject.SetActive(true);
         }
     }
 

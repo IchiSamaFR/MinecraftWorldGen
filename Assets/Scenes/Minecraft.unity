@@ -207,7 +207,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 608651363}
-  - component: {fileID: 608651365}
   - component: {fileID: 608651364}
   - component: {fileID: 608651366}
   m_Layer: 0
@@ -250,18 +249,6 @@ MonoBehaviour:
   jump: space
   interact: e
   drop: a
---- !u!114 &608651365
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 608651362}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b473e957916cae746bebfb1e7664f29c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &608651366
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -381,8 +368,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.6, y: 0.1, z: 0.6}
-  m_Center: {x: 0, y: -0.85, z: 0}
+  m_Size: {x: 0.6, y: 0.02, z: 0.6}
+  m_Center: {x: 0, y: -0.8, z: 0}
 --- !u!1 &1385340345
 GameObject:
   m_ObjectHideFlags: 0
@@ -584,10 +571,11 @@ MonoBehaviour:
   scale: 0.5
   chunkPrefab: {fileID: 811847564182764633, guid: a06e4c2f0e99e5945b79fd3750cc7135,
     type: 3}
-  viewDistance: 2
-  seed: 1143
+  viewDistance: 1
+  seed: 1232
   player: {fileID: 1467843185}
   preGen: 0
+  preGendChunks: 4
   waitTimer: 2
 --- !u!4 &1614736322
 Transform:

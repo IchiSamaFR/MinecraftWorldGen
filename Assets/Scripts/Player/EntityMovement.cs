@@ -22,7 +22,6 @@ public class EntityMovement : MonoBehaviour
 
     public float jumpForce;
     public bool canJump;
-    bool isJumping;
 
     Animator anim;
     
@@ -105,7 +104,6 @@ public class EntityMovement : MonoBehaviour
         {
             rb.AddForce(Vector3.up * jumpForce);
             canJump = false;
-            isJumping = true;
         }
     }
 

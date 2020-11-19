@@ -201,10 +201,8 @@ public class Chunk : MonoBehaviour
     }
     public void PlaceBlock(int x, int y, int z)
     {
-        print("b: " + new Vector3(x, y, z) + "  " + name + " :" + xPos + "," + zPos);
         if (x < 0)
         {
-            print(new Vector3(x + 15, y, z));
             Chunk _c = map.GetChunk(xPos - 1, zPos);
             _c.PlaceBlock(x + width, y, z);
             print("e");
@@ -212,10 +210,8 @@ public class Chunk : MonoBehaviour
         }
         else if (x >= width)
         {
-            print(new Vector3(x - width, y, z));
             Chunk _c = map.GetChunk(xPos + 1, zPos);
             _c.PlaceBlock(x - width, y, z);
-            print("e");
             return;
         }
         else if (y < 0)
@@ -228,19 +224,16 @@ public class Chunk : MonoBehaviour
         }
         else if (z < 0)
         {
-            print(new Vector3(x, y, z + length));
             Chunk _c = map.GetChunk(xPos, zPos - 1);
             _c.PlaceBlock(x, y, z + length);
             return;
         }
         else if (z >= length)
         {
-            print(new Vector3(x, y, z - length));
             Chunk _c = map.GetChunk(xPos, zPos + 1);
             _c.PlaceBlock(x, y, z - length);
             return;
         }
-        print("e");
 
         blocksString[x, y, z] = "block";
         blocks[x, y, z] = null;
