@@ -5,6 +5,8 @@ using System.Threading;
 
 public class Chunk : MonoBehaviour
 {
+    MapGenerator map;
+
     [Header("Needed")]
     public int width;
     public int length;
@@ -47,8 +49,9 @@ public class Chunk : MonoBehaviour
         }
     }
 
-    public void Set(int width, int length, int height, float scale, int xPos, int zPos, int seed)
+    public void Set(MapGenerator map, int width, int length, int height, float scale, int xPos, int zPos, int seed)
     {
+        this.map = map;
         this.width = width;
         this.length = length;
         this.height = height;
@@ -198,6 +201,47 @@ public class Chunk : MonoBehaviour
     }
     public void PlaceBlock(int x, int y, int z)
     {
+        print("b: " + new Vector3(x, y, z) + "  " + name + " :" + xPos + "," + zPos);
+        if (x < 0)
+        {
+            print(new Vector3(x + 15, y, z));
+            Chunk _c = map.GetChunk(xPos - 1, zPos);
+            _c.PlaceBlock(x + width, y, z);
+            print("e");
+            return;
+        }
+        else if (x >= width)
+        {
+            print(new Vector3(x - width, y, z));
+            Chunk _c = map.GetChunk(xPos + 1, zPos);
+            _c.PlaceBlock(x - width, y, z);
+            print("e");
+            return;
+        }
+        else if (y < 0)
+        {
+            return;
+        }
+        else if (y >= height)
+        {
+            return;
+        }
+        else if (z < 0)
+        {
+            print(new Vector3(x, y, z + length));
+            Chunk _c = map.GetChunk(xPos, zPos - 1);
+            _c.PlaceBlock(x, y, z + length);
+            return;
+        }
+        else if (z >= length)
+        {
+            print(new Vector3(x, y, z - length));
+            Chunk _c = map.GetChunk(xPos, zPos + 1);
+            _c.PlaceBlock(x, y, z - length);
+            return;
+        }
+        print("e");
+
         blocksString[x, y, z] = "block";
         blocks[x, y, z] = null;
 

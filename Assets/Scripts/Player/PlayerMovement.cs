@@ -13,10 +13,10 @@ public class PlayerMovement : EntityMovement
         _init_();
     }
 
-    void Update()
+    void FixedUpdate()
     {
         Inputs();
-        Movement();
+        Movement(Time.fixedDeltaTime);
     }
 
     void Inputs()

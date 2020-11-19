@@ -82,9 +82,9 @@ public class EntityMovement : MonoBehaviour
         }
     }
 
-    public virtual void Movement()
+    public virtual void Movement(float _timeDelt)
     {
-        float _speed = Speed();
+        float _speed = Speed() * _timeDelt;
         if (forward)
         {
             transform.position += transform.forward * _speed;
@@ -136,7 +136,7 @@ public class EntityMovement : MonoBehaviour
             }
         }
 
-        speed = _speed * Time.fixedDeltaTime;
+        speed = _speed;
         return speed;
     }
 

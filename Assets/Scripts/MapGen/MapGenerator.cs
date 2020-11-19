@@ -24,6 +24,9 @@ public class MapGenerator : MonoBehaviour
 
     List<Chunk> mapChunks = new List<Chunk>();
     GameObject[,] chunks = new GameObject[128, 128];
+    GameObject[,] chunksX = new GameObject[128, 128];
+    GameObject[,] chunksZ = new GameObject[128, 128];
+    GameObject[,] chunksXZ = new GameObject[128, 128];
 
     public GameObject player;
     Vector3 playerPos;
@@ -89,7 +92,7 @@ public class MapGenerator : MonoBehaviour
                     newChunk.transform.position = new Vector3((x - ToGen + playerPos.x) * width, 0, (z - ToGen + playerPos.z) * length);
                     chunks[x, z] = newChunk;
                     Chunk _chunk = newChunk.GetComponent<Chunk>();
-                    _chunk.Set(width, length, height, scale, (x - ToGen + (int)playerPos.x), (z - ToGen + (int)playerPos.z), seed);
+                    _chunk.Set(this, width, length, height, scale, (x - viewDistance + (int)playerPos.x), (z - viewDistance + (int)playerPos.z), seed);
 
                     _chunk.ArrayGen();
 
@@ -112,13 +115,33 @@ public class MapGenerator : MonoBehaviour
         {
             for (int z = 0; z < viewDistance * 2 + 1; z++)
             {
-                if(!(CheckChunkInList((int)(x - viewDistance + playerPos.x), (int)(z - viewDistance + playerPos.z)) >= 0))
+                int _xPos = (int)(x - viewDistance + playerPos.x);
+                int _zPos = (int)(z - viewDistance + playerPos.z);
+
+                if (!(CheckChunkInList((int)(x - viewDistance + playerPos.x), (int)(z - viewDistance + playerPos.z)) >= 0))
                 {
                     GameObject newChunk = Instantiate(chunkPrefab, this.transform);
-                    newChunk.transform.position = new Vector3((x - viewDistance + playerPos.x) * width, 0, (z - viewDistance + playerPos.z) * length);
-                    chunks[x, z] = newChunk;
+
+                    newChunk.transform.position = new Vector3(_xPos * width, 0, _zPos * length);
+                    if(_xPos < 0 && _zPos < 0)
+                    {
+                        chunks[-_xPos, -_zPos] = newChunk;
+                    }
+                    else if(_xPos < 0)
+                    {
+                        chunks[-_xPos, _zPos] = newChunk;
+                    }
+                    else if (_zPos < 0)
+                    {
+                        chunks[_xPos, -_zPos] = newChunk;
+                    }
+                    else
+                    {
+                        chunks[_xPos, _zPos] = newChunk;
+                    }
+
                     Chunk _chunk = newChunk.GetComponent<Chunk>();
-                    _chunk.Set(width, length, height, scale, (x - viewDistance + (int)playerPos.x), (z - viewDistance + (int)playerPos.z), seed);
+                    _chunk.Set(this, width, length, height, scale, _xPos, _zPos, seed);
 
                     System.Action _action = () => _chunk.ArrayGen();
                     thread.AddToThread(_action);
@@ -126,13 +149,13 @@ public class MapGenerator : MonoBehaviour
                     mapChunks.Add(newChunk.GetComponent<Chunk>());
                 } else
                 {
-                    mapChunks[CheckChunkInList((int)(x - viewDistance + playerPos.x), (int)(z - viewDistance + playerPos.z))].gameObject.SetActive(true);
+                    mapChunks[CheckChunkInList(_xPos, _zPos)].gameObject.SetActive(true);
                 }
             }
         }
     }
 
-    int CheckChunkInList(int x, int z)
+    public int CheckChunkInList(int x, int z)
     {
         int count = 0;
         foreach (Chunk entity in mapChunks)
@@ -144,6 +167,27 @@ public class MapGenerator : MonoBehaviour
             count++;
         }
         return -1;
+    }
+    public Chunk GetChunk(int _xPos, int _zPos)
+    {
+        if (_xPos < 0 && _zPos < 0 && chunks[-_xPos, -_zPos])
+        {
+            return (chunks[-_xPos, -_zPos].GetComponent<Chunk>());
+        }
+        else if (_xPos < 0)
+        {
+            return (chunks[-_xPos, _zPos].GetComponent<Chunk>());
+        }
+        else if (_zPos < 0)
+        {
+            return (chunks[_xPos, -_zPos].GetComponent<Chunk>());
+        }
+        else if(_xPos >= 0 && _zPos >= 0)
+        {
+            return (chunks[_xPos, _zPos].GetComponent<Chunk>());
+        }
+
+        return null;
     }
 
     void DeleteMap()
