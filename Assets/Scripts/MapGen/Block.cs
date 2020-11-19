@@ -36,14 +36,16 @@ public class Block : MonoBehaviour
     {
         Mesh mesh = new Mesh();
 
-        GetComponent<MeshFilter>().mesh = mesh;
-        
+        GetComponent<MeshFilter>().sharedMesh = mesh;
+
+        MeshRenderer meshR = GetComponent<MeshRenderer>();
+
         mesh.Clear();
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
         mesh.uv = uvs.ToArray();
-        
-        
+
+
         mesh.RecalculateNormals();
 
         isBuilded = true;
@@ -100,9 +102,9 @@ public class Block : MonoBehaviour
             vertices.Add(new Vector3(0, 1, 0));
 
             uvs.Add(new Vector2(0, 0));
-            uvs.Add(new Vector2(0, 0));
-            uvs.Add(new Vector2(0, 0));
-            uvs.Add(new Vector2(0, 0));
+            uvs.Add(new Vector2(0.33f, 0));
+            uvs.Add(new Vector2(0.33f, 1f));
+            uvs.Add(new Vector2(0, 1));
         }
         if (!up)
         {
@@ -119,10 +121,11 @@ public class Block : MonoBehaviour
             vertices.Add(new Vector3(1, 1, 1));
             vertices.Add(new Vector3(0, 1, 1));
 
-            uvs.Add(new Vector2(0, 0));
-            uvs.Add(new Vector2(0, 1));
-            uvs.Add(new Vector2(1, 1));
-            uvs.Add(new Vector2(1, 0));
+            uvs.Add(new Vector2(0.33f, 0));
+            uvs.Add(new Vector2(0.66f, 0));
+            uvs.Add(new Vector2(0.66f, 0.99f));
+            uvs.Add(new Vector2(0.33f, 0.99f));
+
         }
         if (!backward)
         {
@@ -140,9 +143,10 @@ public class Block : MonoBehaviour
             vertices.Add(new Vector3(0, 1, 1));
 
             uvs.Add(new Vector2(0, 0));
+            uvs.Add(new Vector2(0.33f, 0));
+            uvs.Add(new Vector2(0.33f, 1f));
             uvs.Add(new Vector2(0, 1));
-            uvs.Add(new Vector2(1, 1));
-            uvs.Add(new Vector2(1, 0));
+
         }
         if (!down)
         {
@@ -159,10 +163,11 @@ public class Block : MonoBehaviour
             vertices.Add(new Vector3(1, 0, 1));
             vertices.Add(new Vector3(0, 0, 1));
 
-            uvs.Add(new Vector2(0, 0));
-            uvs.Add(new Vector2(0, 1));
-            uvs.Add(new Vector2(1, 1));
-            uvs.Add(new Vector2(1, 0));
+            uvs.Add(new Vector2(0.66f, 0));
+            uvs.Add(new Vector2(1f, 0));
+            uvs.Add(new Vector2(1f, 1f));
+            uvs.Add(new Vector2(0.66f, 1f));
+
         }
 
         if (!left)
@@ -181,9 +186,10 @@ public class Block : MonoBehaviour
             vertices.Add(new Vector3(0, 1, 0));
 
             uvs.Add(new Vector2(0, 0));
+            uvs.Add(new Vector2(0.33f, 0));
+            uvs.Add(new Vector2(0.33f, 1f));
             uvs.Add(new Vector2(0, 1));
-            uvs.Add(new Vector2(1, 1));
-            uvs.Add(new Vector2(1, 0));
+
         }
         if (!right)
         {
@@ -201,9 +207,10 @@ public class Block : MonoBehaviour
             vertices.Add(new Vector3(1, 1, 0));
 
             uvs.Add(new Vector2(0, 0));
+            uvs.Add(new Vector2(0.33f, 0));
+            uvs.Add(new Vector2(0.33f, 1f));
             uvs.Add(new Vector2(0, 1));
-            uvs.Add(new Vector2(1, 1));
-            uvs.Add(new Vector2(1, 0));
+
         }
         
 

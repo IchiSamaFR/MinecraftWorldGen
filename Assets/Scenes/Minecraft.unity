@@ -574,9 +574,9 @@ MonoBehaviour:
   viewDistance: 1
   seed: 1232
   player: {fileID: 1467843185}
-  preGen: 0
-  preGendChunks: 4
-  waitTimer: 2
+  preGen: 1
+  preGendChunks: 2
+  waitTimer: 0.2
 --- !u!4 &1614736322
 Transform:
   m_ObjectHideFlags: 0
