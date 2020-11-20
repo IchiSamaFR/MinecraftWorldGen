@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Threading;
 
 public class Chunk : MonoBehaviour
 {
@@ -69,8 +68,70 @@ public class Chunk : MonoBehaviour
         {
             return true;
         }
+        else if (x < 0)
+        {
+            Chunk _c = map.GetChunk(xPos - 1, zPos);
+            if(_c != null)
+            {
+                return _c.GetAt(x + width, y, z);
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else if (x >= width)
+        {
+            Chunk _c = map.GetChunk(xPos + 1, zPos);
+            if (_c != null)
+            {
+                return _c.GetAt(x - width, y, z);
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else if (z < 0)
+        {
+            Chunk _c = map.GetChunk(xPos, zPos - 1);
+            if (_c != null)
+            {
+                return _c.GetAt(x, y, z + length);
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else if (z >= length)
+        {
+            Chunk _c = map.GetChunk(xPos, zPos + 1);
+            if (_c != null)
+            {
+                return _c.GetAt(x, y, z - length);
+            }
+            else
+            {
+                return false;
+            }
+        }
 
         return false;
+    }
+
+    public bool ThisGetAt(int x, int y, int z)
+    {
+        if (x >= 0 && y >= 0 && z >= 0 &&
+           x < width && y < height && z < length
+           && blocksString[x, y, z] != "air")
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public void ArrayGen()
@@ -100,7 +161,7 @@ public class Chunk : MonoBehaviour
             h++;
         }
 
-        arrayGenerated = true;
+        MapGen();
     }
 
     public void MapGen()
@@ -127,8 +188,40 @@ public class Chunk : MonoBehaviour
     ThreadBlocks thread = new ThreadBlocks(); 
     public void RefreshBlock(int x, int y, int z)
     {
-        if(!GetAt(x, y, z))
+        if(!ThisGetAt(x, y, z))
         {
+            if (x < 0)
+            {
+                Chunk _c = map.GetChunk(xPos - 1, zPos);
+                if (_c != null)
+                {
+                    _c.RefreshBlock(x + width, y, z);
+                }
+            }
+            else if (x >= width)
+            {
+                Chunk _c = map.GetChunk(xPos + 1, zPos);
+                if (_c != null)
+                {
+                    _c.RefreshBlock(x - width, y, z);
+                }
+            }
+            else if (z < 0)
+            {
+                Chunk _c = map.GetChunk(xPos, zPos - 1);
+                if (_c != null)
+                {
+                    _c.RefreshBlock(x, y, z + length);
+                }
+            }
+            else if (z >= length)
+            {
+                Chunk _c = map.GetChunk(xPos, zPos + 1);
+                if (_c != null)
+                {
+                    _c.RefreshBlock(x, y, z - length);
+                }
+            }
             return;
         }
 
@@ -156,28 +249,28 @@ public class Chunk : MonoBehaviour
         if (GetAt(x, y - 1, z))
             _down = true;
 
-        Vector3 vec = new Vector3(x, y, z);
-        if (!(_down && _up && _forward && _back && _right && _left) && !blocks[(int)vec.x, (int)vec.y, (int)vec.z])
+        int[] vec = new int[] { x, y, z };
+        if (!(_down && _up && _forward && _back && _right && _left) && !blocks[vec[0], vec[1], vec[2]])
         {
             GameObject cube = Instantiate(grassTilePrefab, this.transform);
-            cube.transform.position = this.transform.position + vec;
-            blocks[(int)vec.x, (int)vec.y, (int)vec.z] = cube;
+            cube.transform.position = this.transform.position + new Vector3(vec[0], vec[1], vec[2]);
+            blocks[vec[0], vec[1], vec[2]] = cube;
 
             Block b = cube.GetComponent<Block>();
             b.pos = vec;
             b.chunk = this;
 
-            b.BuildMesh(_left, _right, _forward, _back, _up, _down);
+            ThreadBlocks.instance.RequestBlock(() => b.BuildMesh(_left, _right, _forward, _back, _up, _down));
         }
-        else if (!(_down && _up && _forward && _back && _right && _left) && blocks[(int)vec.x, (int)vec.y, (int)vec.z])
+        else if (!(_down && _up && _forward && _back && _right && _left) && blocks[vec[0], vec[1], vec[2]])
         {
-            Block b = blocks[(int)vec.x, (int)vec.y, (int)vec.z].GetComponent<Block>();
+            Block b = blocks[vec[0], vec[1], vec[2]].GetComponent<Block>();
 
-            b.BuildMesh(_left, _right, _forward, _back, _up, _down);
+            ThreadBlocks.instance.RequestBlock(() => b.BuildMesh(_left, _right, _forward, _back, _up, _down));
         }
-        else if(blocks[(int)vec.x, (int)vec.y, (int)vec.z])
+        else if(blocks[vec[0], vec[1], vec[2]])
         {
-            Destroy(blocks[(int)vec.x, (int)vec.y, (int)vec.z]);
+            Destroy(blocks[vec[0], vec[1], vec[2]]);
         }
     }
 
@@ -197,15 +290,15 @@ public class Chunk : MonoBehaviour
     }
     public void BreakBlock(Block _block)
     {
-        BreakBlock((int)_block.pos.x, (int)_block.pos.y, (int)_block.pos.z);
+        BreakBlock(_block.pos[0], _block.pos[1], _block.pos[2]);
     }
+
     public void PlaceBlock(int x, int y, int z)
     {
         if (x < 0)
         {
             Chunk _c = map.GetChunk(xPos - 1, zPos);
             _c.PlaceBlock(x + width, y, z);
-            print("e");
             return;
         }
         else if (x >= width)
@@ -214,11 +307,7 @@ public class Chunk : MonoBehaviour
             _c.PlaceBlock(x - width, y, z);
             return;
         }
-        else if (y < 0)
-        {
-            return;
-        }
-        else if (y >= height)
+        else if (y < 0 || y >= height)
         {
             return;
         }
@@ -246,113 +335,9 @@ public class Chunk : MonoBehaviour
         RefreshBlock(x, y + 1, z);
         RefreshBlock(x, y - 1, z);
     }
-    public void PlaceBlock(Vector3 _pos)
+    public void PlaceBlock(int[] _pos)
     {
-        PlaceBlock((int)_pos.x, (int)_pos.y, (int)_pos.z);
+        PlaceBlock(_pos[0], _pos[1], _pos[2]);
     }
-
-
-    /*
-    IEnumerator IE_MapGen()
-    {
-        WaitForSeconds wait = new WaitForSeconds(timeBetweenBlocks);
-
-        List<Vector3> mapBlocks = new List<Vector3>();
-
-        mapBlocks = NoiseMap.Create(width, length, height, scale, xPos, zPos, seed);
-
-        int h = 0;
-        while (h < height)
-        {
-            foreach (Vector3 tile in mapBlocks)
-            {
-                if (tile.y >= h)
-                {
-                    if (tile.y == h)
-                    {
-                        GameObject cube = Instantiate(protoBlock, this.transform);
-                        cube.transform.position = this.transform.position + new Vector3(tile.x, h, tile.z);
-                        chunkBlocks.Add(cube);
-                        cube.transform.GetChild(0).GetComponent<MeshRenderer>().enabled = true;
-                        cube.transform.GetChild(0).GetComponent<BoxCollider>().enabled = true;
-                    }
-                    else
-                    {
-                        GameObject cube = Instantiate(protoBlock, this.transform);
-                        cube.transform.position = this.transform.position + new Vector3(tile.x, h, tile.z);
-                        chunkBlocks.Add(cube);
-                        cube.transform.GetChild(0).GetComponent<MeshRenderer>().enabled = false;
-                        cube.transform.GetChild(0).GetComponent<BoxCollider>().enabled = false;
-                    }
-                }
-            }
-            h++;
-            yield return wait;
-        }
-    }
-    public void SpeedMapGen()
-    {
-        if (timelapse)
-        {
-            StartCoroutine("IE_SpeedMapGen");
-        }
-        else
-        {
-            List<Vector3> mapBlocks = new List<Vector3>();
-
-            mapBlocks = NoiseMap.Create(width, length, height, scale, xPos, zPos, seed);
-
-            foreach (Vector3 tile in mapBlocks)
-            {
-                GameObject cube = Instantiate(grassTilePrefab, this.transform);
-                cube.transform.position = this.transform.position + new Vector3(tile.x, tile.y, tile.z);
-                chunkBlocks.Add(cube);
-
-                blocks[(int)tile.x, (int)tile.y, (int)tile.z] = cube;
-                    
-                cube.GetComponent<Block>().pos = new Vector3(tile.x, tile.y, tile.z);
-                cube.GetComponent<Block>().chunk = this;
-            }
-        }
-
-        foreach(GameObject bl in chunkBlocks)
-        {
-            bl.GetComponent<Block>().BuildMesh();
-        }
-    }
-
-    IEnumerator IE_SpeedMapGen()
-    {
-        WaitForSeconds wait = new WaitForSeconds(timeBetweenBlocks);
-
-        List<Vector3> mapBlocks = new List<Vector3>();
-
-        mapBlocks = NoiseMap.Create(width, length, height, scale, xPos, zPos, seed);
-
-        
-        int h = 0;
-        while (h <= height)
-        {
-            foreach (Vector3 tile in mapBlocks)
-            {
-                if (tile.y == h)
-                {
-                    GameObject cube = null;
-
-                    cube = Instantiate(grassTilePrefab, this.transform);
-                    cube.transform.position = this.transform.position + new Vector3(tile.x, tile.y, tile.z);
-                    chunkBlocks.Add(cube);
-                    blocks[(int)tile.x, (int)h, (int)tile.z] = cube;
-                    
-                    cube.GetComponent<Block>().pos = new Vector3(tile.x, tile.y, tile.z);
-                    cube.GetComponent<Block>().chunk = this;
-                    
-                }
-            }
-            yield return wait;
-            h++;
-        }
-
-    }
-    */
+    
 }

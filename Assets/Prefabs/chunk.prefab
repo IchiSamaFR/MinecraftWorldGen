@@ -52,7 +52,7 @@ MonoBehaviour:
   seed: 0
   protoBlock: {fileID: 4471381381229018290, guid: 6f074c3abde27334cbd00fc3cb3c8334,
     type: 3}
-  grassTilePrefab: {fileID: 2610115440628549571, guid: de788642fbb69fe48bc349c36e662f6a,
+  grassTilePrefab: {fileID: 2950504760750727091, guid: de788642fbb69fe48bc349c36e662f6a,
     type: 3}
   timelapse: 0
   timeBetweenBlocks: 0.05

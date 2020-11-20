@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
-public class ThreadBlocks : MonoBehaviour
+public class ThreadChunks : MonoBehaviour
 {
-    public static ThreadBlocks instance;
+    public static ThreadChunks instance;
     public bool isStarted = false;
     Queue<Action> threadActions = new Queue<Action>();
     Thread thread;

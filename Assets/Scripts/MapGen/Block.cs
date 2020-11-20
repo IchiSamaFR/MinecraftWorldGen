@@ -5,22 +5,21 @@ using UnityEngine;
 public class Block : MonoBehaviour
 {
     public Chunk chunk;
-    public Vector3 pos;
+    public int[] pos = new int[3];
 
     List<int> triangles = new List<int>();
     List<Vector3> vertices = new List<Vector3>();
     List<Vector2> uvs = new List<Vector2>();
+    List<Vector3> normales = new List<Vector3>();
 
     void Start()
     {
-        if (!chunk)
-        {
-            BuildMesh();
-        }
+
     }
 
     bool meshCreated = false;
     bool isBuilded = false;
+    /*
     private void Update()
     {
         if (!isBuilded && meshCreated)
@@ -28,12 +27,17 @@ public class Block : MonoBehaviour
             Build();
         }
     }
+    */
 
     /* After Calculate build block
      * 
      */
     void Build()
     {
+        if (!chunk.GetAt(pos[0], pos[1], pos[2]))
+        {
+            return;
+        }
         Mesh mesh = new Mesh();
 
         GetComponent<MeshFilter>().sharedMesh = mesh;
@@ -44,16 +48,15 @@ public class Block : MonoBehaviour
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
         mesh.uv = uvs.ToArray();
-
-
-        mesh.RecalculateNormals();
+        mesh.normals = normales.ToArray();
 
         isBuilded = true;
     }
 
-    public void BuildMesh()
+    public void BuildMeshEditor()
     {
         BuildMesh(false, false, false, false, false, false);
+        Build();
     }
 
     /* Calculate of blocks
@@ -65,6 +68,7 @@ public class Block : MonoBehaviour
         vertices.Clear();
         triangles.Clear();
         uvs.Clear();
+        normales.Clear();
 
         /*
         left = false;
@@ -101,12 +105,18 @@ public class Block : MonoBehaviour
             vertices.Add(new Vector3(1, 1, 0));
             vertices.Add(new Vector3(0, 1, 0));
 
-            uvs.Add(new Vector2(0, 0));
-            uvs.Add(new Vector2(0.33f, 0));
-            uvs.Add(new Vector2(0.33f, 1f));
-            uvs.Add(new Vector2(0, 1));
+            uvs.Add(new Vector2(0.125f * 0, 0));
+            uvs.Add(new Vector2(0.125f * 1, 0));
+            uvs.Add(new Vector2(0.125f * 1, 1f));
+            uvs.Add(new Vector2(0.125f * 0, 1));
+
+            normales.Add(Vector3.forward);
+            normales.Add(Vector3.forward);
+            normales.Add(Vector3.forward);
+            normales.Add(Vector3.forward);
         }
-        if (!up)
+
+        if (!right)
         {
             triangles.Add(3 + 4 * ind);
             triangles.Add(1 + 4 * ind);
@@ -116,15 +126,20 @@ public class Block : MonoBehaviour
             triangles.Add(1 + 4 * ind);
             ind++;
 
-            vertices.Add(new Vector3(0, 1, 0));
-            vertices.Add(new Vector3(1, 1, 0));
+            vertices.Add(new Vector3(1, 0, 0));
+            vertices.Add(new Vector3(1, 0, 1));
             vertices.Add(new Vector3(1, 1, 1));
-            vertices.Add(new Vector3(0, 1, 1));
+            vertices.Add(new Vector3(1, 1, 0));
 
-            uvs.Add(new Vector2(0.33f, 0));
-            uvs.Add(new Vector2(0.66f, 0));
-            uvs.Add(new Vector2(0.66f, 0.99f));
-            uvs.Add(new Vector2(0.33f, 0.99f));
+            uvs.Add(new Vector2(0.125f * 1, 0));
+            uvs.Add(new Vector2(0.125f * 2, 0));
+            uvs.Add(new Vector2(0.125f * 2, 1f));
+            uvs.Add(new Vector2(0.125f * 1, 1));
+
+            normales.Add(Vector3.right);
+            normales.Add(Vector3.right);
+            normales.Add(Vector3.right);
+            normales.Add(Vector3.right);
 
         }
         if (!backward)
@@ -142,11 +157,65 @@ public class Block : MonoBehaviour
             vertices.Add(new Vector3(1, 1, 1));
             vertices.Add(new Vector3(0, 1, 1));
 
-            uvs.Add(new Vector2(0, 0));
-            uvs.Add(new Vector2(0.33f, 0));
-            uvs.Add(new Vector2(0.33f, 1f));
-            uvs.Add(new Vector2(0, 1));
+            uvs.Add(new Vector2(0.125f * 2, 0));
+            uvs.Add(new Vector2(0.125f * 3, 0));
+            uvs.Add(new Vector2(0.125f * 3, 1f));
+            uvs.Add(new Vector2(0.125f * 2, 1));
 
+            normales.Add(Vector3.back);
+            normales.Add(Vector3.back);
+            normales.Add(Vector3.back);
+            normales.Add(Vector3.back);
+        }
+        if (!left)
+        {
+            triangles.Add(3 + 4 * ind);
+            triangles.Add(0 + 4 * ind);
+            triangles.Add(1 + 4 * ind);
+            triangles.Add(3 + 4 * ind);
+            triangles.Add(1 + 4 * ind);
+            triangles.Add(2 + 4 * ind);
+            ind++;
+
+            vertices.Add(new Vector3(0, 0, 0));
+            vertices.Add(new Vector3(0, 0, 1));
+            vertices.Add(new Vector3(0, 1, 1));
+            vertices.Add(new Vector3(0, 1, 0));
+
+            uvs.Add(new Vector2(0.125f * 3, 0));
+            uvs.Add(new Vector2(0.125f * 4, 0));
+            uvs.Add(new Vector2(0.125f * 4, 1f));
+            uvs.Add(new Vector2(0.125f * 3, 1));
+
+            normales.Add(Vector3.left);
+            normales.Add(Vector3.left);
+            normales.Add(Vector3.left);
+            normales.Add(Vector3.left);
+        }
+        if (!up)
+        {
+            triangles.Add(3 + 4 * ind);
+            triangles.Add(1 + 4 * ind);
+            triangles.Add(0 + 4 * ind);
+            triangles.Add(3 + 4 * ind);
+            triangles.Add(2 + 4 * ind);
+            triangles.Add(1 + 4 * ind);
+            ind++;
+
+            vertices.Add(new Vector3(0, 1, 0));
+            vertices.Add(new Vector3(1, 1, 0));
+            vertices.Add(new Vector3(1, 1, 1));
+            vertices.Add(new Vector3(0, 1, 1));
+
+            uvs.Add(new Vector2(0.125f * 4, 0));
+            uvs.Add(new Vector2(0.125f * 5, 0));
+            uvs.Add(new Vector2(0.125f * 5, 1f));
+            uvs.Add(new Vector2(0.125f * 4, 1));
+
+            normales.Add(Vector3.up);
+            normales.Add(Vector3.up);
+            normales.Add(Vector3.up);
+            normales.Add(Vector3.up);
         }
         if (!down)
         {
@@ -163,58 +232,18 @@ public class Block : MonoBehaviour
             vertices.Add(new Vector3(1, 0, 1));
             vertices.Add(new Vector3(0, 0, 1));
 
-            uvs.Add(new Vector2(0.66f, 0));
-            uvs.Add(new Vector2(1f, 0));
-            uvs.Add(new Vector2(1f, 1f));
-            uvs.Add(new Vector2(0.66f, 1f));
+            uvs.Add(new Vector2(0.125f * 5, 0));
+            uvs.Add(new Vector2(0.125f * 6, 0));
+            uvs.Add(new Vector2(0.125f * 6, 1f));
+            uvs.Add(new Vector2(0.125f * 5, 1));
 
+            normales.Add(Vector3.down);
+            normales.Add(Vector3.down);
+            normales.Add(Vector3.down);
+            normales.Add(Vector3.down);
         }
 
-        if (!left)
-        {
-            triangles.Add(3 + 4 * ind);
-            triangles.Add(0 + 4 * ind);
-            triangles.Add(1 + 4 * ind);
-            triangles.Add(3 + 4 * ind);
-            triangles.Add(1 + 4 * ind);
-            triangles.Add(2 + 4 * ind);
-            ind++;
-
-            vertices.Add(new Vector3(0, 0, 0));
-            vertices.Add(new Vector3(0, 0, 1));
-            vertices.Add(new Vector3(0, 1, 1));
-            vertices.Add(new Vector3(0, 1, 0));
-
-            uvs.Add(new Vector2(0, 0));
-            uvs.Add(new Vector2(0.33f, 0));
-            uvs.Add(new Vector2(0.33f, 1f));
-            uvs.Add(new Vector2(0, 1));
-
-        }
-        if (!right)
-        {
-            triangles.Add(3 + 4 * ind);
-            triangles.Add(1 + 4 * ind);
-            triangles.Add(0 + 4 * ind);
-            triangles.Add(3 + 4 * ind);
-            triangles.Add(2 + 4 * ind);
-            triangles.Add(1 + 4 * ind);
-            ind++;
-
-            vertices.Add(new Vector3(1, 0, 0));
-            vertices.Add(new Vector3(1, 0, 1));
-            vertices.Add(new Vector3(1, 1, 1));
-            vertices.Add(new Vector3(1, 1, 0));
-
-            uvs.Add(new Vector2(0, 0));
-            uvs.Add(new Vector2(0.33f, 0));
-            uvs.Add(new Vector2(0.33f, 1f));
-            uvs.Add(new Vector2(0, 1));
-
-        }
-        
-
-        meshCreated = true;
+        Build();
     }
 
     public void Break()

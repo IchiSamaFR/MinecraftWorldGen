@@ -37,34 +37,50 @@ public class HitCam : MonoBehaviour
                     Vector3 _vec = hit.point;
                     Vector3 _cor = new Vector3(0.1f, 0.1f, 0.1f);
 
+                    int pX = 0;
+                    int pY = 0;
+                    int pZ = 0;
+
 
                     if (_vec.x == b.transform.position.x)
                     {
-                        _vec = new Vector3(b.pos.x - 1, b.pos.y, b.pos.z) + _cor;
+                        pX = b.pos[0] - 1;
+                        pY = b.pos[1];
+                        pZ = b.pos[2];
                     }
                     if (_vec.x == b.transform.position.x + 1)
                     {
-                        _vec = new Vector3(b.pos.x + 1, b.pos.y, b.pos.z) + _cor;
+                        pX = b.pos[0] + 1;
+                        pY = b.pos[1];
+                        pZ = b.pos[2];
                     }
 
                     if (_vec.y == b.transform.position.y)
                     {
-                        _vec = new Vector3(b.pos.x, b.pos.y - 1, b.pos.z) + _cor;
+                        pX = b.pos[0];
+                        pY = b.pos[1] - 1;
+                        pZ = b.pos[2];
                     }
                     if (_vec.y == b.transform.position.y + 1)
                     {
-                        _vec = new Vector3(b.pos.x, b.pos.y + 1, b.pos.z) + _cor;
+                        pX = b.pos[0];
+                        pY = b.pos[1] + 1;
+                        pZ = b.pos[2];
                     }
 
                     if (_vec.z == b.transform.position.z)
                     {
-                        _vec = new Vector3(b.pos.x, b.pos.y, b.pos.z - 1) + _cor;
+                        pX = b.pos[0];
+                        pY = b.pos[1];
+                        pZ = b.pos[2] - 1;
                     }
                     if (_vec.z == b.transform.position.z + 1)
                     {
-                        _vec = new Vector3(b.pos.x, b.pos.y, b.pos.z + 1) + _cor;
+                        pX = b.pos[0];
+                        pY = b.pos[1];
+                        pZ = b.pos[2] + 1;
                     }
-                    hited.GetComponent<Block>().chunk.PlaceBlock(_vec);
+                    hited.GetComponent<Block>().chunk.PlaceBlock(pX, pY, pZ);
                 }
             }
         }
